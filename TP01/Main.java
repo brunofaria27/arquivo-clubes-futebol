@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.Scanner;
 
+import javax.sound.midi.SysexMessage;
+
 public class Main {
     /**
      * Imprime o menu para o usuário
@@ -78,20 +80,19 @@ public class Main {
 
                     sc.nextLine();
 
-                    System.out.println("\nInsira o nome do primeiro time: ");
+                    System.out.print("\nInsira o nome do primeiro time: ");
                     time1 = sc.nextLine();
-                    System.out.println("Insira o nome do segundo time: ");
+                    System.out.print("Insira o nome do segundo time: ");
                     time2 = sc.nextLine();
-                    System.out.println("Insira a quantidade de gols que o primeiro time fez: ");
+                    System.out.print("Insira a quantidade de gols que o primeiro time fez: ");
                     golsTime1 = sc.nextInt();
-                    System.out.println("Insira a quantidade de gols que o segundo time fez: ");
+                    System.out.print("Insira a quantidade de gols que o segundo time fez: ");
                     golsTime2 = sc.nextInt();
 
-                    try {
-                        arq = new RandomAccessFile("clube.db", "rw");
-                        arq.close();
-                    } catch (IOException e) {
-                        //: handle exception
+                    if (crud.readByName(time1) != null && crud.readByName(time2) != null) {
+                        crud.matchGenerator(time1, time2, golsTime1, golsTime2);
+                    } else {
+                        System.out.println("\nUm dos times inseridos é inválido!");
                     }
                 } else if(opcao == 3) {
                     byte idSearch;
@@ -115,24 +116,30 @@ public class Main {
                     String cnpjUpd;
                     String cidadeUpd;
                     
-                    System.out.println("\nInsira o ID do time que deseja alterar: ");
+                    System.out.print("\nInsira o ID do time que deseja alterar: ");
                     idUpd = sc.nextByte();
-                    System.out.println("***Insira a seguir os novos dados***");
-                    sc.nextLine();  // Pegar enter
-                    System.out.println("Nome: ");
-                    nameUpd = sc.nextLine();
-                    System.out.println("CNPJ: ");
-                    cnpjUpd = sc.nextLine();
-                    System.out.println("Cidade: ");
-                    cidadeUpd = sc.nextLine();
 
-                    Clube cUpd = new Clube(idUpd, nameUpd, cnpjUpd, cidadeUpd);
-
-                    if (crud.update(cUpd)) {
-                        System.out.println("Registro atualizado com sucesso!");
+                    if (crud.readById(idUpd)) {
+                        System.out.println("\n***Insira a seguir os novos dados***\n");
+                        sc.nextLine();  // Pegar enter
+                        System.out.print("Nome: ");
+                        nameUpd = sc.nextLine();
+                        System.out.print("CNPJ: ");
+                        cnpjUpd = sc.nextLine();
+                        System.out.print("Cidade: ");
+                        cidadeUpd = sc.nextLine();
+    
+                        Clube cUpd = new Clube(idUpd, nameUpd, cnpjUpd, cidadeUpd);
+    
+                        if (crud.update(cUpd)) {
+                            System.out.println("Registro atualizado com sucesso!");
+                        } else {
+                            System.out.println("Não foi possível atualizar o registro!");
+                        }
                     } else {
-                        System.out.println("Não foi possível atualizar o registro!");
+                        System.out.println("\nID inserido inexistente!");
                     }
+                    
 
                 } else if (opcao == 6) {
                     crud.readAll();

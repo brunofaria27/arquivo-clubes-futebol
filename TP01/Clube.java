@@ -57,6 +57,14 @@ public class Clube {
         pontos = dis.readByte();
     }
 
+    public void increaseMatches() {
+        this.partidasJogadas++;
+    }
+
+    public void updPoints(int x) {
+        this.pontos += x;
+    }
+
     public String toString() {
         return "\nID: " + id + "\nNome clube: " + nome + "\nCNPJ: " + cnpj + "\nCidade: " + cidade + "\nPartidas jogadas: " + partidasJogadas + "\nPontos acumulados: " + pontos;
     }

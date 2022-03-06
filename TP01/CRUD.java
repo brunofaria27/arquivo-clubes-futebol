@@ -84,17 +84,15 @@ public class CRUD {
                         novoB = c.toByteArray();
 
                         if (novoB.length <= tam) {
-                            arq.seek(pos + 6); // Utilizado pós + 2 para que não atualize em cima da lápide nem do tamanho
+                            arq.seek(pos + 6); // Utilizado pos + 6 para que não atualize em cima da lápide nem do tamanho
                             arq.write(novoB);
-                            arq.close();
+                            arq.close();                            
                         } else {
-                            delete(objeto.getId());
-
                             arq.seek(arq.length());
                             arq.writeChar(' ');
                             arq.writeInt(novoB.length);
                             arq.write(novoB);
-
+                            delete(objeto.getId());
                             arq.close();
                         }
                     
@@ -156,7 +154,7 @@ public class CRUD {
      * Metódo utilizado para retornar o time de futebol e suas caracteristicas desejadas, buscando pelo ID
      * @param id -> id passado pelo usuário para retornar o clube
      */
-    public void readById(byte id) {
+    public boolean readById(byte id) {
         try {
             arq = new RandomAccessFile(nomeArquivo, "rw");
 
@@ -177,14 +175,17 @@ public class CRUD {
                     objeto = new Clube();
                     objeto.fromByteArray(b);
 
-                    if(objeto.getId() == id) {
+                    if (objeto.getId() == id) {
                         System.out.println(objeto);
+                        return true;
                     }
                 }
             }
+            return false;
 
         } catch (IOException e) {
             System.out.println("Não foi possível encontrar o time desejado!");
+            return false;
         }
     }
 
@@ -208,7 +209,6 @@ public class CRUD {
                 tam = arq.readInt();
                 ba = new byte[tam];
                 arq.read(ba);
-                arq.close();
 
                 if (lapide != '*') {
                     c = new Clube();
@@ -225,6 +225,29 @@ public class CRUD {
             return null;
         }
     }
+
+    public void matchGenerator(String t1, String t2, int golsT1, int golsT2) {
+        Clube c1 = readByName(t1);
+        Clube c2 = readByName(t2);
+
+        c1.increaseMatches();
+        c2.increaseMatches();
+
+        if (golsT1 > golsT2) {
+            c1.updPoints(3);
+        } else if (golsT1 < golsT2) {
+            c2.updPoints(3);
+        } else {
+            c1.updPoints(1);
+            c2.updPoints(1);
+        }
+        if (update(c1) && update(c2)) {
+            System.out.println("\nPartida registrada e dados alterados com sucesso!");
+        } else {
+            System.out.println("\nNão foi possível registrar a partida e/ou alterar os dados!");
+        }
+    }
+
 
     /**
      * Imprime todos os clubes do arquivo para o usuário
