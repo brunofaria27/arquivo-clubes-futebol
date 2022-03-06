@@ -57,10 +57,17 @@ public class Clube {
         pontos = dis.readByte();
     }
 
+    /**
+     * Incrementa o número de partidas jogadas pelo time
+     */
     public void increaseMatches() {
         this.partidasJogadas++;
     }
 
+    /**
+     * Incrementa o número de pontos do time
+     * @param x -> quantidade de pontos a serem somados, vitória = 3; empate = 1
+     */
     public void updPoints(int x) {
         this.pontos += x;
     }

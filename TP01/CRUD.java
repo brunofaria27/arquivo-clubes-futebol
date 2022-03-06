@@ -226,6 +226,13 @@ public class CRUD {
         }
     }
 
+    /**
+     * Cria a partida entre dois times e de acordo com o resultado altera os dados no arquivo
+     * @param t1 -> nome do primeiro time
+     * @param t2 -> nome do segundo time
+     * @param golsT1 -> quantidade de gols que o primeiro time fez
+     * @param golsT2 -> quantidade de gols que o segundo time fez
+     */
     public void matchGenerator(String t1, String t2, int golsT1, int golsT2) {
         Clube c1 = readByName(t1);
         Clube c2 = readByName(t2);

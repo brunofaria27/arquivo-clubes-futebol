@@ -89,7 +89,7 @@ public class Main {
                     System.out.print("Insira a quantidade de gols que o segundo time fez: ");
                     golsTime2 = sc.nextInt();
 
-                    if (crud.readByName(time1) != null && crud.readByName(time2) != null) {
+                    if (crud.readByName(time1) != null && crud.readByName(time2) != null) { //Checando se os nomes de time inserido são válidos
                         crud.matchGenerator(time1, time2, golsTime1, golsTime2);
                     } else {
                         System.out.println("\nUm dos times inseridos é inválido!");
