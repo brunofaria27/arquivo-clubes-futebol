@@ -1,73 +1,55 @@
 import java.io.*;
-
 import java.util.Scanner;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.text.DecimalFormat;
-
 public class Main {
-    public static void fileCheck() {
-        FileOutputStream arq;
-        DataOutputStream dos;
-
-        boolean exists = (new File("clube.db")).exists();
-
-        if (exists) {
-            // Arquivo já existe
-        } else {
-            try {
-                int id = -1;
-
-                arq = new FileOutputStream("clube.db");
-                dos = new DataOutputStream(arq);
-                dos.writeInt(id);
-                arq.close();
-            } catch (Exception e) {
-                //TODO: handle exception
-            }
-        }
-    }
-
+    /**
+     * Imprime o menu para o usuário
+     */
     public static void menu() {
         System.out.println("\n1 - Criar time");
         System.out.println("2 - Criar partida");
         System.out.println("3 - Procurar time");
         System.out.println("4 - Deletar time");
         System.out.println("5 - Atualizar dados do time");
-        
+        System.out.println("6 - Listar todos os times");
         System.out.println("0 - Sair");
     }
 
+    /**
+     * Faz a leitura do último ID utilizado, se for a primeira vez de uso, o ID está inicializado com -1
+     * e contruirá o primeiro objeto com ID = 0
+     * @param id
+     */
+    public static int getLastId(int id) {
+        RandomAccessFile arq;
+        int idReturn;
+
+        try {
+            arq = new RandomAccessFile("clube.db", "rw");
+            idReturn = arq.readInt();
+            arq.close();
+
+            return idReturn;
+        } catch(IOException e) {
+            System.out.println("Erro ao ler o último id a ser inserido!");
+            return id;
+        }
+    }
+
     public static void main(String[] args) {
-        fileCheck();
+        CRUD crud = new CRUD();
         Scanner sc = new Scanner(System.in);
+        RandomAccessFile arq;
         
         byte opcao;
-        
-        FileInputStream arq2;
-        DataInputStream dis;
+        int id = -1;
 
-        byte id = -1;
-
-        //Faz a leitura do último ID usado que é o primeiro dado escrito no arquivo, se for a primeira vez de uso, o id está inicializado como -1 e construirá o primeiro objeto com id=0
-        try {
-            arq2 = new FileInputStream("clube.db");
-            dis = new DataInputStream(arq2);
-            id = dis.readByte();
-
-            arq2.close();
-        } catch(IOException e) {
-
-        }
+        id = getLastId(id);
 
         do {
             menu();
 
-            System.out.print("Digite sua opção: ");
+            System.out.print("\nDigite sua opção: ");
             opcao = sc.nextByte();
 
             if (opcao != 0) {
@@ -75,74 +57,87 @@ public class Main {
                     String nome;
                     String cnpj;
                     String cidade;
-                    byte partidasJogadas;
-                    byte pontos;
-                    
+
                     id++;
 
-                    sc.nextLine(); //fazendo a captura do "enter" para não ter problema na leitura dos dados de criação
-
-                    System.out.print("Nome: ");
+                    sc.nextLine(); // fazendo a captura do "enter" para não ter problema na leitura dos dados de criação
+                    System.out.print("\nNome: ");
                     nome = sc.nextLine();
-
                     System.out.print("CNPJ: ");
                     cnpj = sc.nextLine();
-
                     System.out.print("Cidade: ");
                     cidade = sc.nextLine();
 
-                    Clube c = new Clube(id, nome, cnpj, cidade);
+                    Clube c = new Clube((byte) id, nome, cnpj, cidade);
+                    crud.create(c, id);
+                } else if (opcao == 2) {
+                    String time1;
+                    String time2;
+                    int golsTime1;
+                    int golsTime2;
 
-                    byte[] ba;
+                    sc.nextLine();
+
+                    System.out.println("\nInsira o nome do primeiro time: ");
+                    time1 = sc.nextLine();
+                    System.out.println("Insira o nome do segundo time: ");
+                    time2 = sc.nextLine();
+                    System.out.println("Insira a quantidade de gols que o primeiro time fez: ");
+                    golsTime1 = sc.nextInt();
+                    System.out.println("Insira a quantidade de gols que o segundo time fez: ");
+                    golsTime2 = sc.nextInt();
 
                     try {
-                        FileOutputStream arq = new FileOutputStream("clube.db", true);
-                        DataOutputStream dos = new DataOutputStream(arq);
-
-                        ba = c.toByteArray();
-
-                        dos.writeInt(ba.length);
-                        dos.write(ba);
-
+                        arq = new RandomAccessFile("clube.db", "rw");
                         arq.close();
                     } catch (IOException e) {
                         //: handle exception
                     }
-                } else {
-                    Clube c2 = new Clube();
-                    Clube c3 = new Clube();
+                } else if(opcao == 3) {
+                    byte idSearch;
 
-                    try {
-                        byte[] ba;
-
-                        arq2 = new FileInputStream("clube.db");
-                        dis = new DataInputStream(arq2);
-
-                        int tam;
-
-                        dis.readInt();
-
-                        tam = dis.readInt();
-                        ba = new byte[tam];
-                        dis.read(ba);
-                        c2.fromByteArray(ba);
-
-                        tam = dis.readInt();
-                        ba = new byte[tam];
-                        dis.read(ba);
-                        c3.fromByteArray(ba);
-
-
-                        System.out.println(c2.toString());
-                        System.out.println(c3.toString());
-
-                        arq2.close();
-                    } catch (IOException e) {
-                        //: handle exception
+                    System.out.println("\nInsira o ID que deseja pesquisar: ");
+                    idSearch = sc.nextByte();
+                    
+                    crud.readById(idSearch);
+                } else if(opcao == 4) {
+                    System.out.println("\nInsira o ID do usuário que deseja deletar: ");
+                    byte idDel = sc.nextByte();
+                    
+                    if (crud.delete(idDel) == true) {
+                        System.out.println("Time deletado com sucesso!");
+                    } else {
+                        System.out.println("Time não foi encontrado!");
                     }
+                } else if (opcao == 5) {
+                    byte idUpd;
+                    String nameUpd;
+                    String cnpjUpd;
+                    String cidadeUpd;
+                    
+                    System.out.println("\nInsira o ID do time que deseja alterar: ");
+                    idUpd = sc.nextByte();
+                    System.out.println("***Insira a seguir os novos dados***");
+                    sc.nextLine();  // Pegar enter
+                    System.out.println("Nome: ");
+                    nameUpd = sc.nextLine();
+                    System.out.println("CNPJ: ");
+                    cnpjUpd = sc.nextLine();
+                    System.out.println("Cidade: ");
+                    cidadeUpd = sc.nextLine();
+
+                    Clube cUpd = new Clube(idUpd, nameUpd, cnpjUpd, cidadeUpd);
+
+                    if (crud.update(cUpd)) {
+                        System.out.println("Registro atualizado com sucesso!");
+                    } else {
+                        System.out.println("Não foi possível atualizar o registro!");
+                    }
+
+                } else if (opcao == 6) {
+                    crud.readAll();
                 }
             }
         } while (opcao != 0);
-
     }
 }

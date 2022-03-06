@@ -30,6 +30,10 @@ public class Clube {
         this.pontos = 0;
     }
 
+    public byte getId() {
+        return id;
+    }
+
     public byte[] toByteArray() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
